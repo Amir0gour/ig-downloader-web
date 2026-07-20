@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaFetch - Premium Reels Downloader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d0f17;
+            --card-bg: rgba(23, 27, 41, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary-gradient: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            --accent-glow: rgba(220, 39, 67, 0.35);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(188, 24, 136, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(240, 148, 51, 0.12) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 40px 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: var(--primary-gradient);
+            border-radius: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px var(--accent-glow);
+        }
+
+        .logo-badge svg {
+            width: 34px;
+            height: 34px;
+            fill: #fff;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 90px 16px 18px;
+            background: rgba(10, 12, 20, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #dc2743;
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .paste-btn {
+            position: absolute;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .paste-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .fetch-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px var(--accent-glow);
+            transition: transform 0.2s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .fetch-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        .fetch-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            margin-top: 24px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .video-preview {
+            width: 100%;
+            max-height: 380px;
+            border-radius: 12px;
+            background: #000;
+            outline: none;
+        }
+
+        .download-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            background: #10b981;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .error-msg {
+            margin-top: 16px;
+            color: #f87171;
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo-badge">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+        </div>
+        
+        <h1>InstaFetch</h1>
+        <p class="subtitle">Download Instagram Reels & Videos in HD</p>
+
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Paste Instagram link here...">
+            <button class="paste-btn" onclick="pasteClipboard()">Paste</button>
+        </div>
+
+        <button class="fetch-btn" id="fetchBtn" onclick="fetchVideo()">
+            <div class="spinner" id="spinner"></div>
+            <span id="btnText">Get Download Link</span>
+        </button>
+
+        <p class="error-msg" id="errorMsg"></p>
+
+        <div class="result-card" id="resultCard">
+            <video class="video-preview" id="videoPreview" controls></video>
+            <a href="#" class="download-btn" id="downloadBtn" target="_blank" download>
+                📥 Save Video File
+            </a>
+        </div>
+    </div>
+
+    <script>
+        async function pasteClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('urlInput').value = text;
+            } catch (err) {
+                alert('Please allow clipboard permissions or paste manually.');
+            }
+        }
+
+        async function fetchVideo() {
+            const urlInput = document.getElementById('urlInput').value.trim();
+            const fetchBtn = document.getElementById('fetchBtn');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btnText');
+            const errorMsg = document.getElementById('errorMsg');
+            const resultCard = document.getElementById('resultCard');
+            const videoPreview = document.getElementById('videoPreview');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            // Reset UI
+            errorMsg.style.display = 'none';
+            resultCard.style.display = 'none';
+
+            if (!urlInput) {
+                errorMsg.innerText = 'Please paste a valid Instagram link.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Set Loading State
+            fetchBtn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.innerText = 'Extracting...';
+
+            try {
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlInput })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.downloadUrl) {
+                    videoPreview.src = data.downloadUrl;
+                    downloadBtn.href = data.downloadUrl;
+                    resultCard.style.display = 'flex';
+                } else {
+                    errorMsg.innerText = data.error || 'Failed to fetch video link.';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.innerText = 'Server connection error. Ensure your local server is running.';
+                errorMsg.style.display = 'block';
+            } finally {
+                // Reset Button
+                fetchBtn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerText = 'Get Download Link';
+            }
+        }
+    </script>
+</body>
+</html>
