@@ -21,6 +21,9 @@ function getShortcode(url) {
 }
 
 router.post('/download', async (req, res) => {
+    console.log("RAW REQ BODY:", req.body);
+    console.log("REQ HEADERS:", req.headers);
+
     try {
         let body = req.body;
         if (typeof body === 'string') {
@@ -29,13 +32,15 @@ router.post('/download', async (req, res) => {
             } catch (e) {}
         }
 
-        // Check all common key names that might be sent from the UI
+        // Check all common key names from UI
         const url = body ? (body.url || body.link || body.instagramUrl) : null;
+        console.log("EXTRACTED URL:", url);
 
         if (!url || !url.includes('instagram.com')) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Please provide a valid Instagram URL.' 
+                error: 'Please provide a valid Instagram URL.',
+                receivedBody: req.body
             });
         }
 
