@@ -22,20 +22,21 @@ function getShortcode(url) {
 
 router.post('/download', async (req, res) => {
     try {
-        // Safely parse body if req.body comes in as a raw string in Netlify
         let body = req.body;
         if (typeof body === 'string') {
             try {
                 body = JSON.parse(body);
-            } catch (e) {
-                // Keep body as is if parsing fails
-            }
+            } catch (e) {}
         }
 
-        const url = body ? body.url : null;
+        // Check all common key names that might be sent from the UI
+        const url = body ? (body.url || body.link || body.instagramUrl) : null;
 
         if (!url || !url.includes('instagram.com')) {
-            return res.status(400).json({ success: false, error: 'Please provide a valid Instagram URL.' });
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Please provide a valid Instagram URL.' 
+            });
         }
 
         const shortcode = getShortcode(url);
